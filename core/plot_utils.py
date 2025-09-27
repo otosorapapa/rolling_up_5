@@ -25,7 +25,7 @@ DARK_AXIS = "#C9D1D9"
 
 LAYOUT_BASE = {
     "autosize": True,
-    "margin": {"l": 56, "r": 16, "t": 28, "b": 42},
+    "margin": {"l": 56, "r": 16, "t": 16, "b": 36},
     "legend": {
         "orientation": "h",
         "y": 1.02,
