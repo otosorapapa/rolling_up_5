@@ -12040,6 +12040,7 @@ elif page == "比較ビュー":
     band_params_initial = params.get("band_params", {})
     band_params = band_params_initial
     amount_slider_cfg = None
+    amount_selection: tuple[int, int] | None = None
     max_amount = int(snapshot["year_sum"].max()) if not snapshot.empty else 0
     low0 = int(
         band_params_initial.get(
@@ -12051,20 +12052,27 @@ elif page == "比較ビュー":
     st.markdown(
         """
   <style>
-  .chart-card { position: relative; margin:var(--space-1) 0 var(--space-3); border-radius:16px;
+  .chart-card { position: relative; margin:0.35rem 0 0.75rem; border-radius:16px;
     border:1px solid var(--border, rgba(var(--primary-rgb,11,31,59),0.18)); background:var(--panel,#ffffff);
     box-shadow:0 16px 32px rgba(var(--primary-rgb,11,31,59),0.08); display:grid;
-    grid-template-rows:auto 1fr; row-gap:var(--space-2); }
+    grid-template-rows:auto 1fr; row-gap:8px; }
   .chart-toolbar { position: sticky; top:-1px; z-index:5;
-    display:flex; gap:var(--space-1); flex-wrap:wrap; align-items:center;
-    padding:var(--space-1) var(--space-2); background: linear-gradient(180deg, rgba(var(--accent-rgb,30,136,229),0.08), rgba(var(--accent-rgb,30,136,229),0.02));
+    display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end;
+    padding:0.5rem 0.75rem 0.25rem; background: linear-gradient(180deg, rgba(var(--accent-rgb,30,136,229),0.08), rgba(var(--accent-rgb,30,136,229),0.02));
     border-bottom:1px solid var(--border, rgba(var(--primary-rgb,11,31,59),0.18)); }
   /* Streamlit標準の下マージンを除去（ここが距離の主因） */
   .chart-toolbar .stRadio, .chart-toolbar .stSelectbox, .chart-toolbar .stSlider,
   .chart-toolbar .stMultiSelect, .chart-toolbar .stCheckbox { margin-bottom:0 !important; }
+  .chart-toolbar .stSlider { flex:1 1 320px; min-width:min(100%, 320px); padding:0.25rem 0 !important; }
   .chart-toolbar .stRadio > label, .chart-toolbar .stCheckbox > label { color:var(--ink,var(--primary,#0B1F3B)); font-weight:600; }
-  .chart-toolbar .stSlider label { color:var(--ink,var(--primary,#0B1F3B)); }
-  .chart-body { padding:var(--space-1) var(--space-2) var(--space-2); }
+  .chart-toolbar .stSlider label { color:var(--ink,var(--primary,#0B1F3B)); margin-bottom:0.25rem; }
+  .chart-toolbar .range-value { margin-left:auto; padding:0.25rem 0; font-size:0.85rem; font-weight:600; color:var(--ink,var(--primary,#0B1F3B)); }
+  .chart-body { padding:0.5rem 1rem 1rem; }
+  @media (max-width: 768px) {
+    .chart-toolbar { gap:8px; padding:0.5rem 0.65rem 0.25rem; }
+    .chart-toolbar .stSlider { min-width:min(100%, 260px); }
+    .chart-toolbar .range-value { width:100%; text-align:left; }
+  }
   </style>
         """,
         unsafe_allow_html=True,
@@ -12264,27 +12272,35 @@ elif page == "比較ビュー":
             ["（なし）", "急勾配", "山（への字）", "谷（逆への字）"],
             horizontal=True,
         )
-    st.markdown("</div>", unsafe_allow_html=True)
-
-    st.markdown('<div class="chart-body">', unsafe_allow_html=True)
-    ai_summary_container = st.container()
-
     if amount_slider_cfg:
-        low_scaled, high_scaled = st.slider(
-            amount_slider_cfg["label"],
-            min_value=amount_slider_cfg["min_value"],
-            max_value=amount_slider_cfg["max_value"],
-            value=amount_slider_cfg["value"],
-            step=amount_slider_cfg["step"],
-        )
+        slider_col, badge_col = st.columns([4, 1])
+        with slider_col:
+            amount_selection = st.slider(
+                amount_slider_cfg["label"],
+                min_value=amount_slider_cfg["min_value"],
+                max_value=amount_slider_cfg["max_value"],
+                value=amount_slider_cfg["value"],
+                step=amount_slider_cfg["step"],
+                key="amount_range_slider",
+            )
+        low_scaled, high_scaled = amount_selection
         low = int(low_scaled * amount_slider_cfg["unit_scale"])
         high = int(high_scaled * amount_slider_cfg["unit_scale"])
         high = min(high, amount_slider_cfg["max_amount"])
         low = min(low, high)
-        st.caption(f"選択中: {format_int(low)}円 〜 {format_int(high)}円")
+        badge_html = (
+            f"<span class='range-value' role='status' aria-live='polite'>選択中: {format_int(low)}円 〜 {format_int(high)}円</span>"
+        )
+        with badge_col:
+            st.markdown(badge_html, unsafe_allow_html=True)
+        amount_selection = (low_scaled, high_scaled)
         band_params = {"low_amount": low, "high_amount": high}
     elif band_mode == "金額指定":
         band_params = {"low_amount": low0, "high_amount": high0}
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    st.markdown('<div class="chart-body">', unsafe_allow_html=True)
+    ai_summary_container = st.container()
 
     params = {
         "end_month": end_m,
