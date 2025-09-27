@@ -61,8 +61,8 @@ header:
         en: "Refresh cadence"
     ai:
       value:
-        ja: "AIサマリー"
-        en: "AI Summary"
+        ja: "多視点分析"
+        en: "Multi-view"
       label:
         ja: "分析モード"
         en: "Analysis mode"

@@ -19,14 +19,7 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-from ai_features import (
-    summarize_dataframe,
-    generate_comment,
-    explain_analysis,
-    generate_actions,
-    answer_question,
-    generate_anomaly_brief,
-)
+from ai_features import answer_question
 from core.i18n import (
     get_available_languages,
     get_current_language,
@@ -1043,33 +1036,8 @@ st.set_page_config(
 
 
 @st.cache_data(ttl=600)
-def _ai_sum_df(df: pd.DataFrame) -> str:
-    return summarize_dataframe(df)
-
-
-@st.cache_data(ttl=600)
-def _ai_explain(d: dict) -> str:
-    return explain_analysis(d)
-
-
-@st.cache_data(ttl=600)
-def _ai_comment(t: str) -> str:
-    return generate_comment(t)
-
-
-@st.cache_data(ttl=600)
-def _ai_actions(metrics: Dict[str, float], focus: str) -> str:
-    return generate_actions(metrics, focus)
-
-
-@st.cache_data(ttl=600)
 def _ai_answer(question: str, context: str) -> str:
     return answer_question(question, context)
-
-
-@st.cache_data(ttl=600)
-def _ai_anomaly_report(df: pd.DataFrame) -> str:
-    return generate_anomaly_brief(df)
 
 
 from services import (
@@ -3764,7 +3732,7 @@ def render_app_hero():
             "label": t("header.stats.refresh.label", default="更新頻度"),
         },
         {
-            "value": t("header.stats.ai.value", default="AIサマリー"),
+            "value": t("header.stats.ai.value", default="多視点分析"),
             "label": t("header.stats.ai.label", default="分析モード"),
         },
     ]
@@ -3871,7 +3839,7 @@ def render_app_hero():
     usage_steps = [
         "データ管理ページでテンプレートと取込手順を確認し、サンプルで操作感を把握します。",
         "CSV/Excelをアップロードしたらデータ品質チェックで欠損や異常を確認します。",
-        "ダッシュボードでKPIとAIサマリーを読み、ランキングや比較ビューに遷移して深掘りします。",
+        "ダッシュボードでKPIを確認し、ランキングや比較ビューに遷移して深掘りします。",
         "異常検知・アラートを確認し、次のアクションや報告資料を作成します。",
     ]
     assumptions = [
@@ -3977,7 +3945,7 @@ def render_onboarding_modal() -> None:
         st.write("数分で主要なワークフローを体験できます。下記の流れで操作を進めましょう。")
         st.markdown(
             "- **データ取込** — サンプルや自社データをアップロードして分析を有効化\n"
-            "- **ダッシュボード** — KPIカードとAIサマリーで全体像を確認\n"
+            "- **ダッシュボード** — KPIカードで全体像を確認\n"
             "- **分析ツール** — ランキングや比較ビューで気になるSKUを深掘り"
         )
         st.caption("ヒント: メニューのアイコンやボタンにカーソルを合わせると詳細のツールチップが表示されます。")
@@ -7531,7 +7499,7 @@ SIDEBAR_PAGES = [
         "icon": "🧾",
         "title": "SKU詳細",
         "tagline": "個別SKUの深掘り",
-        "tooltip": "個別SKUの時系列やAIサマリーで背景を確認します。",
+        "tooltip": "個別SKUの時系列とメモで背景を確認します。",
         "category": "report",
     },
     {
@@ -7842,7 +7810,7 @@ TOUR_STEPS: List[Dict[str, str]] = [
         "heading": "ダッシュボード",
         "title": "ダッシュボード",
         "section": "基礎編",
-        "description": "年計KPIと総合トレンドを俯瞰し、AIサマリーで直近の動きを素早く把握します。",
+        "description": "年計KPIと総合トレンドを俯瞰し、主要な動きを素早く把握します。",
         "details": "ハイライト/ランキングタブで主要SKUの変化を数クリックでチェック。",
     },
     {
@@ -7876,7 +7844,7 @@ TOUR_STEPS: List[Dict[str, str]] = [
         "title": "SKU詳細",
         "section": "応用編",
         "description": "個別SKUの時系列と指標を確認し、メモやタグでアクションを記録します。",
-        "details": "単品/複数比較モードとAIサマリーで詳細な解釈を補助。",
+        "details": "単品/複数比較モードとメモ機能で詳細な解釈を補助。",
     },
     {
         "key": "anomaly",
@@ -7887,7 +7855,7 @@ TOUR_STEPS: List[Dict[str, str]] = [
         "title": "異常検知",
         "section": "応用編",
         "description": "回帰残差ベースで異常な月次を検知し、スコアの高い事象を優先的に確認します。",
-        "details": "窓幅・閾値を調整し、AI異常サマリーで発生背景を把握。",
+        "details": "窓幅・閾値を調整し、スコア上位から発生背景を把握。",
     },
     {
         "key": "correlation",
@@ -9868,8 +9836,8 @@ After validating and mapping the CSV/XLSX, yearly KPIs will be calculated automa
                         guide="ダウンロードしたCSVを共有し、最新の年計指標を連携できます。",
                     )
             st.caption(
-                """ダッシュボードやランキングに移動して、AIサマリーやPDF出力を活用しましょう。
-Move to the dashboard or ranking pages to use AI summaries and PDF exports."""
+                """ダッシュボードやランキングに移動して、主要指標の可視化やPDF出力を活用しましょう。
+Move to the dashboard or ranking pages to explore key visuals and PDF exports."""
             )
         elif data_year is not None and not data_year.empty:
             render_dataset_metric_cards(data_year, latest_month)
@@ -11505,13 +11473,6 @@ elif page == "ランキング":
     hide_zero = sidebar_state.get("rank_hide_zero", True)
     top_limit = int(sidebar_state.get("rank_limit") or 10)
 
-    ai_on = st.toggle(
-        "AIサマリー",
-        value=st.session_state.get("rank_ai_toggle", False),
-        key="rank_ai_toggle",
-        help="要約・コメント・自動説明を表示（オンデマンド計算）",
-    )
-
     unit_value = st.session_state.settings.get("currency_unit", "円")
     unit_scale = UNIT_MAP.get(unit_value, 1)
     template_profile = get_template_config().get("financial_profile", {})
@@ -11910,55 +11871,6 @@ elif page == "ランキング":
         },
     )
 
-    with st.expander("AIサマリー", expanded=ai_on):
-        if ai_on and not sorted_df.empty:
-            ai_subset = sorted_df[[metric_column, "yoy", "delta", "contribution"]].head(
-                min(len(sorted_df), top_limit * 2)
-            )
-            st.info(_ai_sum_df(ai_subset))
-            ai_metrics = {
-                "トップ平均YoY(%)": float(np.nanmean(top_df["yoy"]) * 100)
-                if not top_df["yoy"].dropna().empty
-                else 0.0,
-                "ボトム平均YoY(%)": float(np.nanmean(bottom_df["yoy"]) * 100)
-                if not bottom_df["yoy"].dropna().empty
-                else 0.0,
-                "トップ寄与度(%)": float(np.nansum(top_df["contribution"]) * 100)
-                if not top_df.empty
-                else 0.0,
-            }
-            st.markdown(
-                f"**推奨アクション**: {_ai_actions(ai_metrics, focus=f'{end_m} {metric_label}')}"
-            )
-            prompt_top = top_df.head(min(5, len(top_df)))[
-                ["product_name", metric_column, "yoy"]
-            ].copy()
-            prompt_bottom = bottom_df.head(min(5, len(bottom_df)))[
-                ["product_name", metric_column, "yoy"]
-            ].copy()
-            for frame in (prompt_top, prompt_bottom):
-                if frame.empty:
-                    continue
-                if metric_info["type"] == "currency":
-                    frame[metric_column] = frame[metric_column] / unit_scale
-                elif metric_info["type"] == "percent":
-                    frame[metric_column] = frame[metric_column] * 100
-                frame["yoy"] = frame["yoy"] * 100
-                frame.rename(
-                    columns={
-                        "product_name": "商品",
-                        metric_column: metric_col_name,
-                        "yoy": "前年比(%)",
-                    },
-                    inplace=True,
-                )
-            prompt_text = f"{end_m}の{metric_label}ランキング"
-            if not prompt_top.empty:
-                prompt_text += "\nTopサマリー:\n" + prompt_top.to_markdown(index=False)
-            if not prompt_bottom.empty:
-                prompt_text += "\nBottomサマリー:\n" + prompt_bottom.to_markdown(index=False)
-            st.caption(_ai_comment(prompt_text))
-
     export_df = sorted_df[
         [
             "順位",
@@ -12055,10 +11967,10 @@ elif page == "比較ビュー":
   .chart-card { position: relative; margin:0.35rem 0 0.75rem; border-radius:16px;
     border:1px solid var(--border, rgba(var(--primary-rgb,11,31,59),0.18)); background:var(--panel,#ffffff);
     box-shadow:0 16px 32px rgba(var(--primary-rgb,11,31,59),0.08); display:grid;
-    grid-template-rows:auto 1fr; row-gap:4px; }
+    grid-template-rows:auto 1fr; row-gap:0; }
   .chart-toolbar { position: sticky; top:-1px; z-index:5;
     display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end;
-    padding:0.45rem 0.75rem 0.1rem; background: linear-gradient(180deg, rgba(var(--accent-rgb,30,136,229),0.08), rgba(var(--accent-rgb,30,136,229),0.02));
+    padding:0.45rem 0.75rem 0.05rem; background: linear-gradient(180deg, rgba(var(--accent-rgb,30,136,229),0.08), rgba(var(--accent-rgb,30,136,229),0.02));
     border-bottom:1px solid var(--border, rgba(var(--primary-rgb,11,31,59),0.18)); }
   /* Streamlit標準の下マージンを除去（ここが距離の主因） */
   .chart-toolbar .stRadio, .chart-toolbar .stSelectbox, .chart-toolbar .stSlider,
@@ -12067,7 +11979,7 @@ elif page == "比較ビュー":
   .chart-toolbar .stRadio > label, .chart-toolbar .stCheckbox > label { color:var(--ink,var(--primary,#0B1F3B)); font-weight:600; }
   .chart-toolbar .stSlider label { color:var(--ink,var(--primary,#0B1F3B)); margin-bottom:0.12rem; }
   .chart-toolbar .range-value { margin-left:auto; padding:0.2rem 0; font-size:0.85rem; font-weight:600; color:var(--ink,var(--primary,#0B1F3B)); }
-  .chart-body { padding:0.35rem 1rem 1rem; }
+  .chart-body { padding:0.15rem 1rem 1rem; }
   @media (max-width: 768px) {
     .chart-toolbar { gap:8px; padding:0.5rem 0.65rem 0.25rem; }
     .chart-toolbar .stSlider { min-width:min(100%, 260px); }
@@ -12300,7 +12212,6 @@ elif page == "比較ビュー":
     st.markdown("</div>", unsafe_allow_html=True)
 
     st.markdown('<div class="chart-body">', unsafe_allow_html=True)
-    ai_summary_container = st.container()
 
     params = {
         "end_month": end_m,
@@ -12386,34 +12297,6 @@ elif page == "比較ビュー":
         main_codes = top_order[:max_lines]
 
     df_main = df_long[df_long["product_code"].isin(main_codes)]
-
-    with ai_summary_container:
-        ai_on = st.toggle(
-            "AIサマリー",
-            value=st.session_state.get("compare_ai_toggle", False),
-            key="compare_ai_toggle",
-            help="要約・コメント・自動説明を表示（オンデマンド計算）",
-        )
-        with st.expander("AIサマリー", expanded=ai_on):
-            if ai_on and not df_main.empty:
-                pos = len(codes_steep)
-                mtn = len(codes_mtn & set(main_codes))
-                val = len(codes_val & set(main_codes))
-                explain = _ai_explain(
-                    {
-                        "対象SKU数": len(main_codes),
-                        "中央値(年計)": float(
-                            snapshot_disp.loc[
-                                snapshot_disp["product_code"].isin(main_codes),
-                                "year_sum_disp",
-                            ].median()
-                        ),
-                        "急勾配数": pos,
-                        "山数": mtn,
-                        "谷数": val,
-                    }
-                )
-                st.info(f"**AI比較コメント**：{explain}")
 
     tb_common = dict(
         period=period,
@@ -12591,13 +12474,6 @@ elif page == "SKU詳細":
     df_year = st.session_state.data_year.copy()
     df_year["display_name"] = df_year["product_name"].fillna(df_year["product_code"])
 
-    ai_on = st.toggle(
-        "AIサマリー",
-        value=st.session_state.get("sku_detail_ai_toggle", False),
-        key="sku_detail_ai_toggle",
-        help="要約・コメント・自動説明を表示（オンデマンド計算）",
-    )
-
     chart_rendered = False
     modal_codes: List[str] | None = None
     modal_is_multi = False
@@ -12630,22 +12506,6 @@ elif page == "SKU詳細":
                 "YoY", f"{rr['yoy']*100:.1f} %" if not pd.isna(rr["yoy"]) else "—"
             )
             c3.metric("Δ", f"{int(rr['delta'])}" if not pd.isna(rr["delta"]) else "—")
-
-        with st.expander("AIサマリー", expanded=ai_on):
-            if ai_on and not row.empty:
-                st.info(
-                    _ai_explain(
-                        {
-                            "年計": (
-                                float(rr["year_sum"])
-                                if not pd.isna(rr["year_sum"])
-                                else 0.0
-                            ),
-                            "YoY": float(rr["yoy"]) if not pd.isna(rr["yoy"]) else 0.0,
-                            "Δ": float(rr["delta"]) if not pd.isna(rr["delta"]) else 0.0,
-                        }
-                    )
-                )
 
         st.subheader("メモ / タグ")
         note = st.text_area(
@@ -12695,9 +12555,6 @@ elif page == "SKU詳細":
             snap = latest_yearsum_snapshot(df_year, end_m)
             if codes:
                 snap = snap[snap["product_code"].isin(codes)]
-            with st.expander("AIサマリー", expanded=ai_on):
-                if ai_on and not snap.empty:
-                    st.info(_ai_sum_df(snap[["year_sum", "yoy", "delta"]]))
             st.dataframe(
                 snap[["product_code", "product_name", "year_sum", "yoy", "delta"]],
                 use_container_width=True,
@@ -12867,16 +12724,6 @@ elif page == "異常検知":
             mime="text/csv",
         )
 
-        anomaly_ai_on = st.toggle(
-            "AI異常サマリー", value=False, key="anomaly_ai_toggle"
-        )
-        with st.expander("AI異常サマリー", expanded=anomaly_ai_on):
-            if anomaly_ai_on and not view.empty:
-                ai_df = view[
-                    ["product_name", "month", "score", "year_sum", "yoy", "delta"]
-                ].fillna(0)
-                st.info(_ai_anomaly_report(ai_df))
-
         option_labels = [
             f"{row['product_code']}｜{row['product_name'] or row['product_code']}｜{row['month']}"
             for _, row in view.iterrows()
@@ -12975,13 +12822,6 @@ elif page == "相関分析":
         )
         winsor_pct = st.slider("外れ値丸め(%)", 0.0, 5.0, 1.0)
         log_enable = st.checkbox("ログ変換", value=False)
-        ai_on = st.toggle(
-            "AIサマリー",
-            value=False,
-            key="corr_ai_metric",
-            help="要約・コメント・自動説明を表示（オンデマンド計算）",
-        )
-
         if metrics:
             df_plot = snapshot.copy()
             df_plot = winsorize_frame(df_plot, metrics, p=winsor_pct / 100)
@@ -12996,18 +12836,6 @@ elif page == "相関分析":
             weak_cnt = int((tbl["r"].abs() < 0.2).sum())
             st.write(f"統計的に有意な相関: {sig_cnt} 組")
             st.write(f"|r|<0.2 の組み合わせ: {weak_cnt} 組")
-
-            with st.expander("AIサマリー", expanded=ai_on):
-                if ai_on and not tbl.empty:
-                    r_mean = float(tbl["r"].abs().mean())
-                    st.info(
-                        _ai_explain(
-                            {
-                                "有意本数": int((tbl["sig"] == "有意(95%)").sum()),
-                                "平均|r|": r_mean,
-                            }
-                        )
-                    )
 
             st.subheader("相関ヒートマップ")
             st.caption("右上=強い正、左下=強い負、白=関係薄")
@@ -13168,12 +12996,6 @@ elif page == "相関分析":
                                         code: f"{code}｜{code_to_name.get(code, code) or code}"
                                         for code in valid_codes
                                     }
-                                    ai_on = st.toggle(
-                                        "AIサマリー",
-                                        value=False,
-                                        key="corr_ai_sku",
-                                        help="要約・コメント・自動説明を表示（オンデマンド計算）",
-                                    )
                                     tbl_raw = corr_table(
                                         sku_pivot,
                                         valid_codes,
@@ -13203,20 +13025,6 @@ elif page == "相関分析":
                                         st.info(
                                             "条件に合致するSKU間相関は見つかりませんでした。"
                                         )
-
-                                    with st.expander("AIサマリー", expanded=ai_on):
-                                        if ai_on and not tbl.empty:
-                                            r_mean = float(tbl["r"].abs().mean())
-                                            st.info(
-                                                _ai_explain(
-                                                    {
-                                                        "有意本数": int(
-                                                            (tbl["sig"] == "有意(95%)").sum()
-                                                        ),
-                                                        "平均|r|": r_mean,
-                                                    }
-                                                )
-                                            )
 
                                     st.subheader("相関ヒートマップ")
                                     st.caption(
@@ -13480,7 +13288,7 @@ elif page == "ヘルプ/チュートリアル":
         """
         ### 1. クイックスタート
         1. **データ管理**ページでテンプレートを選択し、CSV/Excelをアップロードします。
-        2. 取り込みが完了したら、サンプルデータやAIサマリーで検証しましょう。
+        2. 取り込みが完了したら、サンプルデータやKPIカードで検証しましょう。
         3. ダッシュボードでフィルタを変更すると、KGI・KPI・トレンドが一括で更新されます。
         """
     )
