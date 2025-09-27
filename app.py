@@ -1068,7 +1068,11 @@ from sample_data import (
     load_sample_csv_dataframe,
     load_sample_dataset,
 )
-from core.chart_card import toolbar_sku_detail, build_chart_card
+from core.chart_card import (
+    VALID_PLOTLY_DRAGMODES,
+    build_chart_card,
+    toolbar_sku_detail,
+)
 from core.plot_utils import apply_elegant_theme, padded_range, render_plotly_with_spinner
 from core.correlation import (
     corr_table,
@@ -12402,9 +12406,12 @@ zスコア：全SKUの傾き分布に対する標準化。|z|≥1.5で急勾配�
     HALO = "#ffffff" if st.get_option("theme.base") == "dark" else "#222222"
     SZ = 6
     dtick = "M1"
-    drag = {"ズーム": "zoom", "パン": "pan", "選択": "select"}.get(
-        op_mode, "pan"
-    )
+    drag_lookup = {"ズーム": "zoom", "パン": "pan", "選択": "select"}
+    drag = drag_lookup.get(op_mode)
+    if drag is None and isinstance(op_mode, str):
+        drag = op_mode
+    if drag not in VALID_PLOTLY_DRAGMODES:
+        drag = "pan"
 
     st.subheader("スモールマルチプル")
     share_y = st.checkbox("Y軸共有", value=False)

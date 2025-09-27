@@ -23,6 +23,19 @@ UNIT_SCALE = {"円": 1, "千円": 1_000, "百万円": 1_000_000}
 MAX_DISPLAY_PRODUCTS = 60
 TREND_POS_THRESHOLD = 0.05
 TREND_NEG_THRESHOLD = -0.05
+VALID_PLOTLY_DRAGMODES: set[str] = {
+    "zoom",
+    "pan",
+    "select",
+    "lasso",
+    "drawrect",
+    "drawcircle",
+    "drawline",
+    "drawopenpath",
+    "drawclosedpath",
+    "orbit",
+    "turntable",
+}
 
 
 def _sample_scale_colors(scale: list[str], count: int, *, low: float = 0.1, high: float = 0.9) -> list[str]:
@@ -584,8 +597,15 @@ def build_chart_card(
         dtick = "M6"
     fig.update_xaxes(tickformat="%Y-%m", dtick=dtick)
     dragmode_map = {"パン": "pan", "ズーム": "zoom", "選択": "select"}
+    raw_dragmode = tb.get("op_mode")
+    dragmode = dragmode_map.get(raw_dragmode)
+    if dragmode is None and isinstance(raw_dragmode, str):
+        dragmode = raw_dragmode
+    if dragmode not in VALID_PLOTLY_DRAGMODES:
+        dragmode = "pan"
+
     fig.update_layout(
-        dragmode=dragmode_map.get(tb.get("op_mode"), "pan"),
+        dragmode=dragmode,
         hovermode="closest" if tb["hover_mode"] == "個別" else "x unified",
         legend=dict(
             orientation="h",
