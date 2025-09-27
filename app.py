@@ -12055,19 +12055,19 @@ elif page == "比較ビュー":
   .chart-card { position: relative; margin:0.35rem 0 0.75rem; border-radius:16px;
     border:1px solid var(--border, rgba(var(--primary-rgb,11,31,59),0.18)); background:var(--panel,#ffffff);
     box-shadow:0 16px 32px rgba(var(--primary-rgb,11,31,59),0.08); display:grid;
-    grid-template-rows:auto 1fr; row-gap:8px; }
+    grid-template-rows:auto 1fr; row-gap:4px; }
   .chart-toolbar { position: sticky; top:-1px; z-index:5;
     display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end;
-    padding:0.5rem 0.75rem 0.25rem; background: linear-gradient(180deg, rgba(var(--accent-rgb,30,136,229),0.08), rgba(var(--accent-rgb,30,136,229),0.02));
+    padding:0.45rem 0.75rem 0.1rem; background: linear-gradient(180deg, rgba(var(--accent-rgb,30,136,229),0.08), rgba(var(--accent-rgb,30,136,229),0.02));
     border-bottom:1px solid var(--border, rgba(var(--primary-rgb,11,31,59),0.18)); }
   /* Streamlit標準の下マージンを除去（ここが距離の主因） */
   .chart-toolbar .stRadio, .chart-toolbar .stSelectbox, .chart-toolbar .stSlider,
   .chart-toolbar .stMultiSelect, .chart-toolbar .stCheckbox { margin-bottom:0 !important; }
-  .chart-toolbar .stSlider { flex:1 1 320px; min-width:min(100%, 320px); padding:0.25rem 0 !important; }
+  .chart-toolbar .stSlider { flex:1 1 320px; min-width:min(100%, 320px); padding:0.15rem 0 !important; }
   .chart-toolbar .stRadio > label, .chart-toolbar .stCheckbox > label { color:var(--ink,var(--primary,#0B1F3B)); font-weight:600; }
-  .chart-toolbar .stSlider label { color:var(--ink,var(--primary,#0B1F3B)); margin-bottom:0.25rem; }
-  .chart-toolbar .range-value { margin-left:auto; padding:0.25rem 0; font-size:0.85rem; font-weight:600; color:var(--ink,var(--primary,#0B1F3B)); }
-  .chart-body { padding:0.5rem 1rem 1rem; }
+  .chart-toolbar .stSlider label { color:var(--ink,var(--primary,#0B1F3B)); margin-bottom:0.12rem; }
+  .chart-toolbar .range-value { margin-left:auto; padding:0.2rem 0; font-size:0.85rem; font-weight:600; color:var(--ink,var(--primary,#0B1F3B)); }
+  .chart-body { padding:0.35rem 1rem 1rem; }
   @media (max-width: 768px) {
     .chart-toolbar { gap:8px; padding:0.5rem 0.65rem 0.25rem; }
     .chart-toolbar .stSlider { min-width:min(100%, 260px); }
