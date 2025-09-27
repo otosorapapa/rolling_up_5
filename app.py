@@ -11964,25 +11964,30 @@ elif page == "比較ビュー":
     st.markdown(
         """
   <style>
-  .chart-card { position: relative; margin:0.35rem 0 0.75rem; border-radius:16px;
+  .chart-card { position: relative; margin:0.25rem 0 0.65rem; border-radius:16px;
     border:1px solid var(--border, rgba(var(--primary-rgb,11,31,59),0.18)); background:var(--panel,#ffffff);
     box-shadow:0 16px 32px rgba(var(--primary-rgb,11,31,59),0.08); display:grid;
-    grid-template-rows:auto 1fr; row-gap:0; }
+    grid-template-rows:auto 1fr; row-gap:8px; padding:0; }
   .chart-toolbar { position: sticky; top:-1px; z-index:5;
-    display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end;
-    padding:0.45rem 0.75rem 0.05rem; background: linear-gradient(180deg, rgba(var(--accent-rgb,30,136,229),0.08), rgba(var(--accent-rgb,30,136,229),0.02));
-    border-bottom:1px solid var(--border, rgba(var(--primary-rgb,11,31,59),0.18)); }
-  /* Streamlit標準の下マージンを除去（ここが距離の主因） */
+    display:flex; flex-direction:column; gap:8px; padding:0.35rem 0.75rem 0.2rem; align-items:stretch;
+    background: linear-gradient(180deg, rgba(var(--accent-rgb,30,136,229),0.08), rgba(var(--accent-rgb,30,136,229),0.02));
+    border-bottom:1px solid var(--border, rgba(var(--primary-rgb,11,31,59),0.18));
+    overflow-x:auto; -webkit-overflow-scrolling:touch; }
   .chart-toolbar .stRadio, .chart-toolbar .stSelectbox, .chart-toolbar .stSlider,
   .chart-toolbar .stMultiSelect, .chart-toolbar .stCheckbox { margin-bottom:0 !important; }
-  .chart-toolbar .stSlider { flex:1 1 320px; min-width:min(100%, 320px); padding:0.15rem 0 !important; }
+  .chart-toolbar .range-wrap { display:flex; align-items:flex-end; gap:12px;
+    padding:0.25rem 0 0.1rem; line-height:1.3; min-width:0; }
+  .chart-toolbar .range-wrap .stSlider { flex:1 1 320px; min-width:min(100%, 320px); padding:0 !important; }
+  .chart-toolbar .stSlider { flex:1 1 320px; min-width:min(100%, 320px); padding:0.05rem 0 !important; }
+  .chart-toolbar .stSlider label { color:var(--ink,var(--primary,#0B1F3B)); margin-bottom:0.08rem;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block; }
   .chart-toolbar .stRadio > label, .chart-toolbar .stCheckbox > label { color:var(--ink,var(--primary,#0B1F3B)); font-weight:600; }
-  .chart-toolbar .stSlider label { color:var(--ink,var(--primary,#0B1F3B)); margin-bottom:0.12rem; }
-  .chart-toolbar .range-value { margin-left:auto; padding:0.2rem 0; font-size:0.85rem; font-weight:600; color:var(--ink,var(--primary,#0B1F3B)); }
-  .chart-body { padding:0.15rem 1rem 1rem; }
+  .chart-toolbar .range-value { margin-left:auto; padding:0.15rem 0; font-size:0.85rem; font-weight:600; color:var(--ink,var(--primary,#0B1F3B)); white-space:nowrap; display:inline-flex; align-items:center; }
+  .chart-body { padding:0.1rem 1rem 1rem; }
   @media (max-width: 768px) {
-    .chart-toolbar { gap:8px; padding:0.5rem 0.65rem 0.25rem; }
-    .chart-toolbar .stSlider { min-width:min(100%, 260px); }
+    .chart-toolbar { gap:10px; padding:0.4rem 0.65rem 0.2rem; }
+    .chart-toolbar .range-wrap { flex-direction:column; align-items:stretch; gap:4px; }
+    .chart-toolbar .range-wrap .stSlider { min-width:min(100%, 260px); }
     .chart-toolbar .range-value { width:100%; text-align:left; }
   }
   </style>
@@ -11995,6 +12000,7 @@ elif page == "比較ビュー":
     )
 
     st.markdown('<div class="chart-toolbar">', unsafe_allow_html=True)
+    range_slot = st.container()
     c1, c2, c3, c4, c5 = st.columns([1.2, 1.6, 1.1, 1.0, 0.9])
     with c1:
         period = st.radio(
@@ -12185,8 +12191,11 @@ elif page == "比較ビュー":
             horizontal=True,
         )
     if amount_slider_cfg:
-        slider_col, badge_col = st.columns([4, 1])
-        with slider_col:
+        with range_slot:
+            st.markdown(
+                "<div class='range-wrap' role='group' aria-label='金額レンジフィルター'>",
+                unsafe_allow_html=True,
+            )
             amount_selection = st.slider(
                 amount_slider_cfg["label"],
                 min_value=amount_slider_cfg["min_value"],
@@ -12194,6 +12203,11 @@ elif page == "比較ビュー":
                 value=amount_slider_cfg["value"],
                 step=amount_slider_cfg["step"],
                 key="amount_range_slider",
+            )
+            badge_placeholder = st.empty()
+            st.markdown(
+                "</div>",
+                unsafe_allow_html=True,
             )
         low_scaled, high_scaled = amount_selection
         low = int(low_scaled * amount_slider_cfg["unit_scale"])
@@ -12203,8 +12217,7 @@ elif page == "比較ビュー":
         badge_html = (
             f"<span class='range-value' role='status' aria-live='polite'>選択中: {format_int(low)}円 〜 {format_int(high)}円</span>"
         )
-        with badge_col:
-            st.markdown(badge_html, unsafe_allow_html=True)
+        badge_placeholder.markdown(badge_html, unsafe_allow_html=True)
         amount_selection = (low_scaled, high_scaled)
         band_params = {"low_amount": low, "high_amount": high}
     elif band_mode == "金額指定":
