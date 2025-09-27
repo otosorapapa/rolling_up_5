@@ -3,41 +3,41 @@ colors:
     value: "#0B1F3B"
     usage: "主要アクション、ヘッダー、強調テキストの基調色。"
   secondary:
-    value: "#5A6B7A"
+    value: "#334155"
     usage: "補助テキスト、境界線、非アクティブ状態。"
   accent:
-    value: "#1E88E5"
-    emphasis: "#0B1F3B"
-    soft: "#56A5EB"
+    value: "#0EA5E9"
+    emphasis: "#075985"
+    soft: "#7DD3FC"
     usage: "リンク、グラフの強調ライン、操作中のインジケータ。"
   background:
-    value: "#F7F8FA"
+    value: "#F7F8FB"
     usage: "アプリ全体の背景。余白を活かす淡いグレー。"
   surface:
     value: "#FFFFFF"
     usage: "カードやモーダルなど、主要なコンテナの背景。"
   surface_alt:
-    value: "#EEF1F5"
+    value: "#EEF2F7"
     usage: "テーブルヘッダーやハイライトされた面の背景。"
   text:
-    value: "#1A1A1A"
+    value: "#0B1220"
     usage: "本文テキストの基本色。"
   muted:
-    value: "#4C5A68"
+    value: "#475569"
     usage: "キャプションや補足情報の色。"
   border:
-    value: "#D5DAE3"
-    strong: "#B8C1CC"
+    value: "#CBD5E1"
+    strong: "#94A3B8"
     usage: "カード・分割線・入力境界線。"
   success:
-    value: "#00A972"
+    value: "#10B981"
     usage: "増加トレンド、成功メッセージ。"
   warning:
-    base: "#F4B400"
-    value: "#DFA637"
+    base: "#F59E0B"
+    value: "#F59E0B"
     usage: "注意喚起。彩度を抑え視認性と落ち着きを両立。"
   error:
-    value: "#D93025"
+    value: "#EF4444"
     usage: "エラー、在庫過剰など緊急性の高い通知。"
 
 typography:

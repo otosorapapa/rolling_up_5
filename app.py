@@ -75,6 +75,9 @@ SUCCESS_RGB = get_color_rgb("success")
 WARNING_COLOR = get_color("warning")
 WARNING_RGB = get_color_rgb("warning")
 ERROR_COLOR = get_color("error")
+CHIP_BG_LIGHT = "#E8F2FA"
+CHIP_TEXT_LIGHT = "#0B2636"
+CHIP_BORDER_LIGHT = "#C6E2F5"
 
 body_typography = get_typography("body")
 heading_typography = get_typography("heading")
@@ -1123,20 +1126,32 @@ st.markdown(
 :root{
   --font-heading:'Georgia','Times New Roman','Hiragino Mincho ProN','Yu Mincho',serif;
   --font-base:'Arial','Noto Sans JP','Hiragino Kaku Gothic ProN','Meiryo',sans-serif;
-  --bg:#ffffff;
-  --bg-muted:#f4f7fb;
-  --panel:#ffffff;
-  --panel-alt:#f6f8fc;
-  --ink:var(--primary,#0B1F3B);
-  --ink-subtle:#40526d;
-  --accent:var(--accent,#1E88E5);
-  --accent-strong:#0b2f4c;
-  --accent-soft:var(--accent-soft,#56A5EB);
-  --muted:#5a6880;
-  --border:#d4deee;
-  --border-strong:#b7c5da;
-  --metric-positive:var(--accent,#1E88E5);
-  --metric-negative:#b24646;
+  --text-primary:#0b1220;
+  --text-secondary:#334155;
+  --text-muted:#475569;
+  --surface-0:#ffffff;
+  --surface-1:#f7f8fb;
+  --surface-2:#eef2f7;
+  --surface:var(--surface-0);
+  --surface-alt:var(--surface-2);
+  --bg:var(--surface-1);
+  --bg-muted:var(--surface-2);
+  --panel:var(--surface-0);
+  --panel-alt:var(--surface-2);
+  --ink:var(--text-primary);
+  --ink-subtle:var(--text-secondary);
+  --accent:var(--accent,#0EA5E9);
+  --accent-strong:#075985;
+  --accent-soft:var(--accent-soft,#7DD3FC);
+  --muted:var(--text-muted);
+  --border:#cbd5e1;
+  --border-strong:#94a3b8;
+  --metric-positive:var(--accent,#0EA5E9);
+  --metric-negative:#ef4444;
+  --chip-bg:#e8f2fa;
+  --chip-text:#0b2636;
+  --chip-border:#c6e2f5;
+  --focus-ring:var(--accent);
   --space-1:0.5rem;
   --space-2:0.75rem;
   --space-3:1rem;
@@ -1148,6 +1163,29 @@ body, .stApp, [data-testid="stAppViewContainer"]{
   font-family:var(--font-base);
   font-size:1rem;
   line-height:1.48;
+}
+.chip{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 10px;
+  border-radius:9999px;
+  color:var(--chip-text);
+  background:var(--chip-bg);
+  border:1px solid var(--chip-border);
+  box-shadow:0 0 0 1px color-mix(in srgb, var(--chip-border), transparent 40%);
+  font-size:0.85rem;
+  font-weight:600;
+  letter-spacing:0.01em;
+}
+.chip[aria-pressed="true"], .chip.active{
+  background:color-mix(in srgb, var(--accent) 24%, var(--chip-bg));
+  color:#07263a;
+  border-color:color-mix(in srgb, var(--accent), #000000 30%);
+}
+.chip:focus-visible{
+  outline:2px solid var(--focus-ring);
+  outline-offset:2px;
 }
 [data-testid="stAppViewContainer"] > .main{
   padding-top:0;
@@ -2079,16 +2117,24 @@ brand_override_template = Template(
           --font-base:${font_body};
           --font-body:${font_body};
           --font-mono:${font_numeric};
+          --text-primary:${text_primary};
+          --text-secondary:${text_secondary};
+          --text-muted:${text_muted};
+          --surface-0:${surface_0};
+          --surface-1:${surface_1};
+          --surface-2:${surface_2};
+          --surface:${surface_0};
+          --surface-alt:${surface_2};
+          --bg:${surface_1};
+          --bg-muted:${surface_2};
+          --panel:${surface_0};
+          --panel-alt:${surface_2};
           --primary:${primary};
           --primary-rgb:${primary_rgb};
           --primary-dark:${primary_dark};
           --primary-deep:${primary_deep};
           --primary-deep-rgb:${primary_deep_rgb};
           --primary-light:${primary_light};
-          --bg:${background};
-          --bg-muted:${background_muted};
-          --panel:${surface};
-          --panel-alt:${surface_alt};
           --ink:${text};
           --ink-subtle:${muted};
           --muted:${muted};
@@ -2101,6 +2147,10 @@ brand_override_template = Template(
           --border-strong:${border_strong};
           --metric-positive:${success};
           --metric-negative:${error};
+          --chip-bg:${chip_bg};
+          --chip-text:${chip_text};
+          --chip-border:${chip_border};
+          --focus-ring:${accent};
           --success:${success};
           --success-rgb:${success_rgb};
           --warning:${warning};
@@ -2201,6 +2251,12 @@ st.markdown(
         surface_alt=SURFACE_ALT_COLOR,
         text=TEXT_COLOR,
         muted=MUTED_COLOR,
+        text_primary=TEXT_COLOR,
+        text_secondary=SECONDARY_COLOR,
+        text_muted=MUTED_COLOR,
+        surface_0=SURFACE_COLOR,
+        surface_1=BACKGROUND_COLOR,
+        surface_2=SURFACE_ALT_COLOR,
         accent=ACCENT_COLOR,
         accent_rgb=ACCENT_RGB,
         accent_soft=ACCENT_SOFT,
@@ -2213,6 +2269,9 @@ st.markdown(
         warning=WARNING_COLOR,
         warning_rgb=WARNING_RGB,
         error=ERROR_COLOR,
+        chip_bg=CHIP_BG_LIGHT,
+        chip_text=CHIP_TEXT_LIGHT,
+        chip_border=CHIP_BORDER_LIGHT,
         spacing_unit=SPACING_UNIT,
         card_radius=CARD_RADIUS,
         card_shadow=CARD_SHADOW,
@@ -2280,20 +2339,32 @@ if elegant_on:
             """
             <style>
               :root{
-                --ink:#e6efff;
-                --ink-subtle:#a9bddc;
-                --bg:#08121f;
-                --bg-muted:#0d1c30;
-                --panel:#0f2138;
-                --panel-alt:#162d4a;
-                --border:#1f3a5d;
-                --border-strong:#2f4c74;
-                --accent:var(--accent,#1E88E5);
-                --accent-strong:var(--accent-soft,#56A5EB);
-                --accent-soft:#8fc2ff;
-                --muted:#9cb1d1;
-                --metric-positive:var(--accent-soft,#56A5EB);
-                --metric-negative:#f18c8c;
+                --text-primary:#e6edf3;
+                --text-secondary:#c9d1d9;
+                --text-muted:#9aa5b1;
+                --surface-0:#0b1220;
+                --surface-1:#111827;
+                --surface-2:#182030;
+                --surface:var(--surface-0);
+                --surface-alt:var(--surface-2);
+                --bg:var(--surface-1);
+                --bg-muted:var(--surface-2);
+                --panel:var(--surface-0);
+                --panel-alt:var(--surface-2);
+                --ink:var(--text-primary);
+                --ink-subtle:var(--text-secondary);
+                --muted:var(--text-muted);
+                --accent:var(--accent,#7DD3FC);
+                --accent-strong:#0f5f82;
+                --accent-soft:#a5e4ff;
+                --border:#1f2a37;
+                --border-strong:#304258;
+                --metric-positive:var(--accent,#7DD3FC);
+                --metric-negative:#ef4444;
+                --chip-bg:#0f1a28;
+                --chip-text:#dbeafe;
+                --chip-border:#22415f;
+                --focus-ring:var(--accent);
               }
               body, .stApp, [data-testid="stAppViewContainer"]{ background:var(--bg) !important; color:var(--ink) !important; }
               [data-testid="stHeader"]{
@@ -2346,20 +2417,32 @@ if elegant_on:
             """
             <style>
               :root{
-                --ink:var(--primary,#0B1F3B);
-                --ink-subtle:#40526d;
-                --bg:#ffffff;
-                --bg-muted:#f4f7fb;
-                --panel:#ffffff;
-                --panel-alt:#f6f8fc;
-                --border:#d4deee;
-                --border-strong:#b7c5da;
-                --accent:var(--accent,#1E88E5);
-                --accent-strong:#0b2f4c;
-                --accent-soft:var(--accent-soft,#56A5EB);
-                --muted:#5a6880;
-                --metric-positive:var(--accent,#1E88E5);
-                --metric-negative:#b24646;
+                --text-primary:#0b1220;
+                --text-secondary:#334155;
+                --text-muted:#475569;
+                --surface-0:#ffffff;
+                --surface-1:#f7f8fb;
+                --surface-2:#eef2f7;
+                --surface:var(--surface-0);
+                --surface-alt:var(--surface-2);
+                --bg:var(--surface-1);
+                --bg-muted:var(--surface-2);
+                --panel:var(--surface-0);
+                --panel-alt:var(--surface-2);
+                --ink:var(--text-primary);
+                --ink-subtle:var(--text-secondary);
+                --muted:var(--text-muted);
+                --border:#cbd5e1;
+                --border-strong:#94a3b8;
+                --accent:var(--accent,#0EA5E9);
+                --accent-strong:#075985;
+                --accent-soft:#7DD3FC;
+                --metric-positive:var(--accent,#0EA5E9);
+                --metric-negative:#ef4444;
+                --chip-bg:#e8f2fa;
+                --chip-text:#0b2636;
+                --chip-border:#c6e2f5;
+                --focus-ring:var(--accent);
               }
               body, .stApp, [data-testid="stAppViewContainer"]{ background:var(--bg) !important; color:var(--ink) !important; }
               [data-testid="stHeader"]{
@@ -2720,14 +2803,15 @@ st.markdown(
       display:inline-flex;
       align-items:center;
       gap:0.35rem;
-      padding:0.35rem 0.65rem;
+      padding:0.4rem 0.75rem;
       border-radius:999px;
-      border:1px solid rgba({PRIMARY_RGB},0.55);
-      background:rgba({PRIMARY_RGB},0.08);
-      color:{PRIMARY_COLOR};
-      font-weight:700;
+      border:1px solid var(--chip-border);
+      background:var(--chip-bg);
+      color:var(--chip-text);
+      font-weight:600;
       font-size:0.82rem;
       letter-spacing:.03em;
+      box-shadow:0 0 0 1px color-mix(in srgb, var(--chip-border), transparent 35%);
     }}
     .glossary-term::before{{
       content:"i";
@@ -2737,9 +2821,15 @@ st.markdown(
       width:1.1rem;
       height:1.1rem;
       border-radius:50%;
-      background:rgba({PRIMARY_RGB},0.15);
-      border:1px solid rgba({PRIMARY_RGB},0.35);
+      background:color-mix(in srgb, var(--accent) 18%, var(--chip-bg));
+      border:1px solid color-mix(in srgb, var(--accent), #000000 35%);
+      color:#07263a;
       font-size:0.72rem;
+      font-weight:700;
+    }}
+    .glossary-term:focus-visible{{
+      outline:2px solid var(--focus-ring);
+      outline-offset:2px;
     }}
     .input-warning{{
       color:{ERROR_COLOR};
