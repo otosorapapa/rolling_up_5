@@ -583,8 +583,9 @@ def build_chart_card(
     else:
         dtick = "M6"
     fig.update_xaxes(tickformat="%Y-%m", dtick=dtick)
+    dragmode_map = {"パン": "pan", "ズーム": "zoom", "選択": "select"}
     fig.update_layout(
-        dragmode={"パン": "pan", "ズーム": "zoom", "選択": "select"}[tb["op_mode"]],
+        dragmode=dragmode_map.get(tb.get("op_mode"), "pan"),
         hovermode="closest" if tb["hover_mode"] == "個別" else "x unified",
         legend=dict(
             orientation="h",
