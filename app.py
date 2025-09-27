@@ -12402,7 +12402,9 @@ zスコア：全SKUの傾き分布に対する標準化。|z|≥1.5で急勾配�
     HALO = "#ffffff" if st.get_option("theme.base") == "dark" else "#222222"
     SZ = 6
     dtick = "M1"
-    drag = {"ズーム": "zoom", "パン": "pan", "選択": "select"}[op_mode]
+    drag = {"ズーム": "zoom", "パン": "pan", "選択": "select"}.get(
+        op_mode, "pan"
+    )
 
     st.subheader("スモールマルチプル")
     share_y = st.checkbox("Y軸共有", value=False)
