@@ -630,20 +630,20 @@ def render_clickable_kpi_cards(
         .dashboard-kgi-card.is-accent{{
           border-color:{ACCENT_COLOR};
           background:linear-gradient(135deg,{ACCENT_SOFT},{ACCENT_COLOR});
-          color:#fff;
+          color:var(--btn-tx);
         }}
         .dashboard-kgi-card.is-accent .dashboard-kgi-card__label,
         .dashboard-kgi-card.is-accent .dashboard-kgi-card__caption{{
-          color:rgba(255,255,255,0.85);
+          color:var(--btn-tx);
         }}
         .dashboard-kgi-card.is-primary{{
           border-color:{PRIMARY_COLOR};
           background:linear-gradient(135deg,{PRIMARY_LIGHT},{PRIMARY_COLOR});
-          color:#fff;
+          color:var(--btn-tx);
         }}
         .dashboard-kgi-card.is-primary .dashboard-kgi-card__label,
         .dashboard-kgi-card.is-primary .dashboard-kgi-card__caption{{
-          color:rgba(255,255,255,0.85);
+          color:var(--btn-tx);
         }}
         .dashboard-kgi-card.is-success{{
           border-color:{SUCCESS_COLOR};
@@ -1126,36 +1126,75 @@ st.markdown(
 :root{
   --font-heading:'Georgia','Times New Roman','Hiragino Mincho ProN','Yu Mincho',serif;
   --font-base:'Arial','Noto Sans JP','Hiragino Kaku Gothic ProN','Meiryo',sans-serif;
-  --text-primary:#0b1220;
-  --text-secondary:#334155;
-  --text-muted:#475569;
+  --text-pri:#0b1220;
+  --text-sec:#334155;
+  --text-muted:#5b6776;
   --surface-0:#ffffff;
-  --surface-1:#f7f8fb;
+  --surface-1:#f5f7fb;
   --surface-2:#eef2f7;
+  --chip-bg:#eef6ff;
+  --chip-text:#0b2636;
+  --chip-border:#c6defa;
+  --chip-tx:var(--chip-text);
+  --chip-bd:var(--chip-border);
+  --btn-bg:#111827;
+  --btn-tx:#ffffff;
+  --btn-bg-dis:#d1d5db;
+  --btn-tx-dis:#6b7280;
+  --focus:#60a5fa;
   --surface:var(--surface-0);
   --surface-alt:var(--surface-2);
   --bg:var(--surface-1);
   --bg-muted:var(--surface-2);
   --panel:var(--surface-0);
   --panel-alt:var(--surface-2);
-  --ink:var(--text-primary);
-  --ink-subtle:var(--text-secondary);
-  --accent:var(--accent,#0EA5E9);
+  --ink:var(--text-pri);
+  --ink-subtle:var(--text-sec);
+  --accent:#0EA5E9;
   --accent-strong:#075985;
-  --accent-soft:var(--accent-soft,#7DD3FC);
+  --accent-soft:#7DD3FC;
   --muted:var(--text-muted);
   --border:#cbd5e1;
   --border-strong:#94a3b8;
   --metric-positive:var(--accent,#0EA5E9);
   --metric-negative:#ef4444;
-  --chip-bg:#e8f2fa;
-  --chip-text:#0b2636;
-  --chip-border:#c6e2f5;
-  --focus-ring:var(--accent);
+  --focus-ring:var(--focus);
+  --text-primary:var(--text-pri);
+  --text-secondary:var(--text-sec);
   --space-1:0.5rem;
   --space-2:0.75rem;
   --space-3:1rem;
   --space-4:1.5rem;
+}
+:root.dark{
+  --text-pri:#e6edf3;
+  --text-sec:#c9d1d9;
+  --text-muted:#9aa5b1;
+  --surface-0:#0b1220;
+  --surface-1:#111827;
+  --surface-2:#182030;
+  --chip-bg:#0f1a28;
+  --chip-text:#dbeafe;
+  --chip-border:#244865;
+  --chip-tx:var(--chip-text);
+  --chip-bd:var(--chip-border);
+  --btn-bg:#1f2937;
+  --btn-tx:#f8fafc;
+  --btn-bg-dis:#2a3342;
+  --btn-tx-dis:#7b8796;
+  --focus:#7dd3fc;
+  --surface:var(--surface-0);
+  --surface-alt:var(--surface-2);
+  --bg:var(--surface-1);
+  --bg-muted:var(--surface-2);
+  --panel:var(--surface-0);
+  --panel-alt:var(--surface-2);
+  --ink:var(--text-pri);
+  --ink-subtle:var(--text-sec);
+  --muted:var(--text-muted);
+  --focus-ring:var(--focus);
+  --text-primary:var(--text-pri);
+  --text-secondary:var(--text-sec);
 }
 body, .stApp, [data-testid="stAppViewContainer"]{
   background:var(--bg) !important;
@@ -1170,18 +1209,83 @@ body, .stApp, [data-testid="stAppViewContainer"]{
   gap:6px;
   padding:6px 10px;
   border-radius:9999px;
-  color:var(--chip-text);
+  color:var(--chip-tx);
   background:var(--chip-bg);
-  border:1px solid var(--chip-border);
-  box-shadow:0 0 0 1px color-mix(in srgb, var(--chip-border), transparent 40%);
+  border:1px solid var(--chip-bd);
+  box-shadow:0 0 0 1px color-mix(in srgb, var(--chip-bd), transparent 40%);
   font-size:0.85rem;
   font-weight:600;
   letter-spacing:0.01em;
 }
+.stTextInput label,
+.stSelectbox label,
+.stMultiSelect label,
+.stNumberInput label,
+.stDateInput label,
+.stRadio > label,
+.stSlider label{
+  color:var(--text-sec);
+}
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="button"]):not([type="submit"]),
+select,
+textarea,
+.stSelectbox>div>div>input,
+[data-baseweb="select"] [role="combobox"]{
+  color:var(--text-pri);
+  background:var(--surface-2);
+  border:1px solid color-mix(in srgb, var(--surface-0), transparent 85%);
+  border-radius:12px;
+  padding:0.55rem 0.75rem;
+  caret-color:var(--text-pri);
+}
+input::placeholder,
+textarea::placeholder,
+.stSelectbox>div>div>input::placeholder{
+  color:var(--text-muted);
+  opacity:1;
+}
+input:disabled,
+select:disabled,
+textarea:disabled,
+.stSelectbox>div>div>input:disabled{
+  background:color-mix(in srgb, var(--surface-2), transparent 35%);
+  color:var(--btn-tx-dis);
+}
+input:focus,
+select:focus,
+textarea:focus,
+.stSelectbox>div>div>input:focus,
+[data-baseweb="select"] [role="combobox"]:focus,
+button:focus-visible,
+.stButton>button:focus-visible,
+a:focus-visible{
+  outline:2px solid var(--focus);
+  outline-offset:2px;
+  box-shadow:none !important;
+}
+.stButton>button{
+  background:var(--btn-bg);
+  color:var(--btn-tx);
+  border:1px solid color-mix(in srgb, var(--btn-bg), transparent 55%);
+  border-radius:12px;
+  font-weight:600;
+  transition:filter .2s ease, background-color .2s ease, color .2s ease;
+}
+.stButton>button:hover{
+  filter:brightness(1.08);
+}
+.stButton>button:active{
+  filter:brightness(0.95);
+}
+.stButton>button:disabled{
+  background:var(--btn-bg-dis);
+  color:var(--btn-tx-dis);
+  opacity:1;
+}
 .chip[aria-pressed="true"], .chip.active{
-  background:color-mix(in srgb, var(--accent) 24%, var(--chip-bg));
-  color:#07263a;
-  border-color:color-mix(in srgb, var(--accent), #000000 30%);
+  background:color-mix(in srgb, var(--accent) 20%, var(--chip-bg));
+  color:var(--chip-tx);
+  border-color:color-mix(in srgb, var(--chip-bd), var(--accent) 35%);
 }
 .chip:focus-visible{
   outline:2px solid var(--focus-ring);
@@ -1196,26 +1300,26 @@ body, .stApp, [data-testid="stAppViewContainer"]{
   padding:var(--space-1) var(--space-3);
 }
 [data-testid="stHeader"] *{
-  color:var(--surface,#FFFFFF) !important;
+  color:var(--btn-tx) !important;
 }
 [data-testid="stSidebar"]{
   background:linear-gradient(180deg,var(--primary-deep,#08172C) 0%,var(--primary,#0B1F3B) 100%);
-  color:var(--surface-alt,#EEF1F5);
+  color:var(--btn-tx);
   padding:var(--space-3) var(--space-2);
 }
 [data-testid="stSidebar"] *{
-  color:var(--surface-alt,#EEF1F5) !important;
+  color:var(--btn-tx) !important;
   font-family:var(--font-base);
 }
 [data-testid="stSidebar"] .stButton>button{
-  background:rgba(255,255,255,0.16);
-  border:1px solid rgba(255,255,255,0.38);
-  color:#ffffff;
+  background:color-mix(in srgb, var(--surface-0), transparent 30%);
+  border:1px solid color-mix(in srgb, var(--surface-0), transparent 60%);
+  color:var(--text-pri);
   box-shadow:none;
-  font-weight:600;
 }
 [data-testid="stSidebar"] .stButton>button:hover{
-  background:rgba(255,255,255,0.24);
+  background:color-mix(in srgb, var(--surface-0), transparent 15%);
+  color:var(--text-pri);
 }
 .mck-inline-label{
   display:flex;
@@ -2168,6 +2272,8 @@ brand_override_template = Template(
           --font-base:${font_body};
           --font-body:${font_body};
           --font-mono:${font_numeric};
+          --text-pri:${text_primary};
+          --text-sec:${text_secondary};
           --text-primary:${text_primary};
           --text-secondary:${text_secondary};
           --text-muted:${text_muted};
@@ -2201,6 +2307,8 @@ brand_override_template = Template(
           --chip-bg:${chip_bg};
           --chip-text:${chip_text};
           --chip-border:${chip_border};
+          --chip-tx:${chip_text};
+          --chip-bd:${chip_border};
           --focus-ring:${accent};
           --success:${success};
           --success-rgb:${success_rgb};
@@ -2238,11 +2346,11 @@ brand_override_template = Template(
 
         [data-testid="stSidebar"]{
           background:linear-gradient(180deg, ${primary_deep} 0%, ${primary} 100%);
-          color:${surface_alt};
+          color:${surface};
         }
 
         [data-testid="stSidebar"] *{
-          color:${surface_alt} !important;
+          color:${surface} !important;
           font-family:${font_body};
         }
 
@@ -2390,8 +2498,10 @@ if elegant_on:
             """
             <style>
               :root{
-                --text-primary:#e6edf3;
-                --text-secondary:#c9d1d9;
+                --text-pri:#e6edf3;
+                --text-sec:#c9d1d9;
+                --text-primary:var(--text-pri);
+                --text-secondary:var(--text-sec);
                 --text-muted:#9aa5b1;
                 --surface-0:#0b1220;
                 --surface-1:#111827;
@@ -2402,20 +2512,27 @@ if elegant_on:
                 --bg-muted:var(--surface-2);
                 --panel:var(--surface-0);
                 --panel-alt:var(--surface-2);
-                --ink:var(--text-primary);
-                --ink-subtle:var(--text-secondary);
+                --ink:var(--text-pri);
+                --ink-subtle:var(--text-sec);
                 --muted:var(--text-muted);
-                --accent:var(--accent,#7DD3FC);
+                --accent:#7DD3FC;
                 --accent-strong:#0f5f82;
                 --accent-soft:#a5e4ff;
                 --border:#1f2a37;
                 --border-strong:#304258;
-                --metric-positive:var(--accent,#7DD3FC);
+                --metric-positive:var(--accent);
                 --metric-negative:#ef4444;
                 --chip-bg:#0f1a28;
                 --chip-text:#dbeafe;
                 --chip-border:#22415f;
-                --focus-ring:var(--accent);
+                --chip-tx:var(--chip-text);
+                --chip-bd:var(--chip-border);
+                --btn-bg:#1f2937;
+                --btn-tx:#f8fafc;
+                --btn-bg-dis:#2a3342;
+                --btn-tx-dis:#7b8796;
+                --focus:#7dd3fc;
+                --focus-ring:var(--focus);
               }
               body, .stApp, [data-testid="stAppViewContainer"]{ background:var(--bg) !important; color:var(--ink) !important; }
               [data-testid="stHeader"]{
@@ -2468,11 +2585,13 @@ if elegant_on:
             """
             <style>
               :root{
-                --text-primary:#0b1220;
-                --text-secondary:#334155;
-                --text-muted:#475569;
+                --text-pri:#0b1220;
+                --text-sec:#334155;
+                --text-primary:var(--text-pri);
+                --text-secondary:var(--text-sec);
+                --text-muted:#5b6776;
                 --surface-0:#ffffff;
-                --surface-1:#f7f8fb;
+                --surface-1:#f5f7fb;
                 --surface-2:#eef2f7;
                 --surface:var(--surface-0);
                 --surface-alt:var(--surface-2);
@@ -2480,20 +2599,27 @@ if elegant_on:
                 --bg-muted:var(--surface-2);
                 --panel:var(--surface-0);
                 --panel-alt:var(--surface-2);
-                --ink:var(--text-primary);
-                --ink-subtle:var(--text-secondary);
+                --ink:var(--text-pri);
+                --ink-subtle:var(--text-sec);
                 --muted:var(--text-muted);
                 --border:#cbd5e1;
                 --border-strong:#94a3b8;
-                --accent:var(--accent,#0EA5E9);
+                --accent:#0EA5E9;
                 --accent-strong:#075985;
                 --accent-soft:#7DD3FC;
-                --metric-positive:var(--accent,#0EA5E9);
+                --metric-positive:var(--accent);
                 --metric-negative:#ef4444;
-                --chip-bg:#e8f2fa;
+                --chip-bg:#eef6ff;
                 --chip-text:#0b2636;
-                --chip-border:#c6e2f5;
-                --focus-ring:var(--accent);
+                --chip-border:#c6defa;
+                --chip-tx:var(--chip-text);
+                --chip-bd:var(--chip-border);
+                --btn-bg:#111827;
+                --btn-tx:#ffffff;
+                --btn-bg-dis:#d1d5db;
+                --btn-tx-dis:#6b7280;
+                --focus:#60a5fa;
+                --focus-ring:var(--focus);
               }
               body, .stApp, [data-testid="stAppViewContainer"]{ background:var(--bg) !important; color:var(--ink) !important; }
               [data-testid="stHeader"]{
@@ -2797,18 +2923,18 @@ st.markdown(
     .nav-action-bar .stButton>button{{
       background:linear-gradient(135deg, {PRIMARY_LIGHT}, {PRIMARY_COLOR});
       border:1px solid rgba({PRIMARY_RGB},0.4);
-      color:#0b1f3b;
+      color:var(--btn-tx);
       box-shadow:0 16px 32px rgba({PRIMARY_RGB},0.22);
     }}
     .nav-action-bar .stButton>button:disabled{{
-      background:rgba(255,255,255,0.4);
-      color:rgba(11,31,59,0.45);
+      background:var(--btn-bg-dis);
+      color:var(--btn-tx-dis);
       box-shadow:none;
     }}
     .nav-action-bar .stLinkButton>button{{
-      background:rgba(255,255,255,0.12);
-      border:1px solid rgba({PRIMARY_RGB},0.35);
-      color:#ffffff;
+      background:color-mix(in srgb, var(--surface-2), transparent 35%);
+      border:1px solid color-mix(in srgb, var(--surface-2), transparent 55%);
+      color:var(--btn-tx);
     }}
     .mck-hero__usage{{
       margin-top:var(--space-4);
