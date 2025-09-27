@@ -1101,7 +1101,7 @@ from sample_data import (
     load_sample_dataset,
 )
 from core.chart_card import toolbar_sku_detail, build_chart_card
-from core.plot_utils import apply_elegant_theme, render_plotly_with_spinner
+from core.plot_utils import apply_elegant_theme, padded_range, render_plotly_with_spinner
 from core.correlation import (
     corr_table,
     fisher_ci,
@@ -1341,14 +1341,15 @@ section[id]{ scroll-margin-top:calc(64px + var(--space-2)); }
   box-shadow:0 12px 26px rgba(var(--primary-rgb,11,31,59),0.12);
   display:grid;
   grid-template-rows:auto 1fr auto;
-  row-gap:var(--space-2);
+  row-gap:16px;
+  min-height:360px;
 }
 .dashboard-chart-card__toolbar{
   display:flex;
   flex-wrap:wrap;
   align-items:center;
-  gap:var(--space-1);
-  padding:var(--space-1) var(--space-3);
+  gap:12px;
+  padding:12px 16px;
   background:linear-gradient(180deg, rgba(var(--primary-rgb,11,31,59),0.05), rgba(var(--primary-rgb,11,31,59),0.02));
   border-bottom:1px solid rgba(var(--primary-rgb,11,31,59),0.12);
 }
@@ -1371,17 +1372,62 @@ section[id]{ scroll-margin-top:calc(64px + var(--space-2)); }
   white-space:nowrap;
 }
 .dashboard-chart-card__body{
-  padding:var(--space-2) var(--space-3);
+  padding:16px;
+  display:flex;
+  flex-direction:column;
+  gap:16px;
 }
 .dashboard-chart-card__footer{
   display:flex;
   flex-wrap:wrap;
-  gap:var(--space-1);
-  padding:0 var(--space-3) var(--space-2);
+  gap:12px;
+  padding:0 16px 16px;
   border-top:1px solid rgba(var(--primary-rgb,11,31,59),0.08);
 }
 .dashboard-chart-card__footer [data-testid="column"]{
   flex:1 1 220px;
+}
+.plot-wrap{
+  min-height:240px;
+  display:flex;
+  align-items:stretch;
+  width:100%;
+}
+.plot-wrap.plot-wrap--spark{
+  min-height:200px;
+}
+.plot-wrap [data-testid="stPlotlyChart"],
+.plot-wrap .stPlotlyChart{
+  flex:1;
+  min-height:100%;
+}
+.plot-wrap .plotly-chart{
+  min-height:inherit;
+}
+.plot-wrap .modebar{
+  top:6px !important;
+  right:6px !important;
+}
+.plot-wrap .modebar-btn{
+  width:28px !important;
+  height:28px !important;
+}
+.mini-chart-card{
+  min-height:320px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  padding:12px 16px 16px;
+  border:1px solid var(--border);
+  border-radius:16px;
+  background:var(--panel);
+  box-shadow:0 12px 26px rgba(var(--primary-rgb,11,31,59),0.10);
+}
+.mini-chart-card .plot-wrap{
+  min-height:200px;
+}
+.mini-chart-card button[data-testid="baseButton-primary"]{
+  margin-top:auto;
 }
 [data-testid="stMetric"]{
   background:var(--panel);
@@ -2098,6 +2144,11 @@ section[data-testid="stSidebar"] label.tour-highlight-nav *{
   border:1px solid var(--border);
   border-radius:16px;
   box-shadow:0 16px 32px rgba(var(--primary-rgb,11,31,59),0.08);
+  padding:16px;
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+  min-height:360px;
 }
 .chart-toolbar{
   background:linear-gradient(180deg, rgba(var(--primary-rgb,11,31,59),0.05), rgba(var(--primary-rgb,11,31,59),0.02));
@@ -10902,18 +10953,50 @@ elif page == "ダッシュボード":
                 showlegend=False,
             )
         )
+        latest_value = float(latest_row[value_col]) if pd.notna(latest_row[value_col]) else None
+        if latest_value is not None:
+            fig.add_annotation(
+                x=latest_row["month_dt"],
+                y=latest_value,
+                text=f"{latest_value:,.1f}",
+                showarrow=False,
+                xanchor="right",
+                align="right",
+                font=dict(size=11, color=color),
+                bgcolor="rgba(0,0,0,0)",
+                borderpad=2,
+                yshift=-6,
+            )
+        y_values = recent[value_col].tolist()
+        y_range = padded_range(y_values, quantile=0.99, padding=0.10, to_zero=True)
         fig.update_layout(
-            height=120,
-            margin=dict(l=0, r=0, t=20, b=0),
-            xaxis=dict(visible=False),
-            yaxis=dict(visible=False),
+            height=200,
+            margin=dict(l=32, r=12, t=12, b=24),
+            xaxis=dict(visible=False, showgrid=False, fixedrange=True),
+            yaxis=dict(
+                visible=True,
+                tickformat=",~s",
+                nticks=3,
+                showgrid=True,
+                gridcolor="rgba(255,255,255,0.06)",
+                zeroline=False,
+                automargin=True,
+            ),
+            legend=dict(visible=False),
+            hovermode="x unified",
         )
+        if y_range is not None:
+            fig.update_yaxes(range=y_range)
         fig = apply_elegant_theme(fig, theme=st.session_state.get("ui_theme", "light"))
+        column.markdown(
+            "<div class='plot-wrap plot-wrap--spark'>", unsafe_allow_html=True
+        )
         column.plotly_chart(
             fig,
             use_container_width=True,
-            config={"displayModeBar": False},
+            config={"displayModeBar": False, "responsive": True},
         )
+        column.markdown("</div>", unsafe_allow_html=True)
 
     def _format_delta_pct(value: Optional[float], *, suffix: str = "%") -> Optional[str]:
         if value is None or (isinstance(value, float) and math.isnan(value)):
@@ -11022,6 +11105,7 @@ elif page == "ダッシュボード":
     st.markdown("### ビジネスKPI")
     biz_cols = st.columns(2)
     with biz_cols[0]:
+        st.markdown("<div class='mini-chart-card'>", unsafe_allow_html=True)
         biz_cols[0].metric(
             "売上総額 (年計)",
             format_amount(total_sales, unit_value),
@@ -11046,10 +11130,12 @@ elif page == "ダッシュボード":
             kwargs={"page_key": "ranking", "rerun_on_lock": True},
             use_container_width=True,
         )
+        st.markdown("</div>", unsafe_allow_html=True)
 
     gross_profit_value = financial_snapshot.get("gross_profit")
     gross_delta = _metric_delta_currency(prev_gross, gross_profit_value)
     with biz_cols[1]:
+        st.markdown("<div class='mini-chart-card'>", unsafe_allow_html=True)
         biz_cols[1].metric(
             "粗利 (年計)",
             format_amount(gross_profit_value, unit_value),
@@ -11072,12 +11158,14 @@ elif page == "ダッシュボード":
             kwargs={"page_key": "detail", "rerun_on_lock": True},
             use_container_width=True,
         )
+        st.markdown("</div>", unsafe_allow_html=True)
 
     st.markdown("### 運営KPI")
     ops_cols = st.columns(2)
     inventory_current = _lookup_history(active_end_month, "inventory_turnover")
     turnover_delta = _metric_delta(prev_turnover, inventory_current)
     with ops_cols[0]:
+        st.markdown("<div class='mini-chart-card'>", unsafe_allow_html=True)
         ops_cols[0].metric(
             "在庫回転率",
             f"{inventory_current:.2f} 回" if inventory_current is not None else "—",
@@ -11100,10 +11188,12 @@ elif page == "ダッシュボード":
             kwargs={"page_key": "compare", "rerun_on_lock": True},
             use_container_width=True,
         )
+        st.markdown("</div>", unsafe_allow_html=True)
 
     cashflow_current = _lookup_history(active_end_month, "net_cash_flow")
     cashflow_delta = _metric_delta_currency(prev_cashflow, cashflow_current)
     with ops_cols[1]:
+        st.markdown("<div class='mini-chart-card'>", unsafe_allow_html=True)
         ops_cols[1].metric(
             "資金繰り (月次キャッシュフロー)",
             format_amount(cashflow_current, unit_value),
@@ -11126,9 +11216,11 @@ elif page == "ダッシュボード":
             kwargs={"page_key": "alert", "rerun_on_lock": True},
             use_container_width=True,
         )
+        st.markdown("</div>", unsafe_allow_html=True)
 
     st.markdown("### 安全性KPI")
     safety_col = st.columns(1)[0]
+    safety_col.markdown("<div class='mini-chart-card'>", unsafe_allow_html=True)
     cash_current = financial_snapshot.get("cash_balance")
     cash_delta = _metric_delta_currency(prev_cash, cash_current)
     safety_col.metric(
@@ -11153,6 +11245,7 @@ elif page == "ダッシュボード":
         kwargs={"page_key": "executive", "rerun_on_lock": True},
         use_container_width=True,
     )
+    safety_col.markdown("</div>", unsafe_allow_html=True)
 
     st.markdown("---")
     st.caption("タブを切り替えると該当指標のグラフとテーブルが更新されます。")
