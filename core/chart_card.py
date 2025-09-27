@@ -594,10 +594,13 @@ def build_chart_card(
             xanchor="left",
             x=0,
             bgcolor="rgba(0,0,0,0)",
+            font=dict(size=10),
             itemclick="toggleothers",
             itemdoubleclick="toggle",
         ),
-        margin=dict(l=72, r=40, t=60, b=80),
+        margin=dict(l=56, r=16, t=12, b=36),
+        paper_bgcolor="transparent",
+        plot_bgcolor="transparent",
     )
     latest_yoy_map = (
         latest_snapshot["yoy"].to_dict() if "yoy" in latest_snapshot.columns else {}
