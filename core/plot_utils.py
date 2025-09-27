@@ -12,14 +12,16 @@ from core.design_tokens import get_color, get_font_stack, rgba
 
 PRIMARY = get_color("primary")
 PRIMARY_TEXT = get_color("text")
+SECONDARY_TEXT = get_color("secondary")
 ACCENT_SOFT = get_color("accent", "soft")
+BORDER_STRONG = get_color("border", "strong")
 
 LIGHT_TEXT = PRIMARY_TEXT
-LIGHT_GRID = rgba(PRIMARY, 0.10)
-LIGHT_AXIS = rgba(PRIMARY, 0.28)
-DARK_TEXT = "#E6EFF8"
-DARK_GRID = rgba(ACCENT_SOFT, 0.20)
-DARK_AXIS = rgba(ACCENT_SOFT, 0.35)
+LIGHT_GRID = rgba(BORDER_STRONG, 0.55)
+LIGHT_AXIS = SECONDARY_TEXT
+DARK_TEXT = "#E6EDF3"
+DARK_GRID = rgba("#244865", 0.55)
+DARK_AXIS = "#C9D1D9"
 
 LAYOUT_BASE = {
     "autosize": True,
@@ -80,19 +82,28 @@ def apply_elegant_theme(fig: go.Figure, theme: str = "light") -> go.Figure:
                 color=DARK_TEXT,
             ),
             legend=dict(
-                bgcolor=rgba(PRIMARY, 0.65),
-                bordercolor=rgba(ACCENT_SOFT, 0.32),
+                bgcolor=rgba("#0F1A28", 0.9),
+                bordercolor=rgba("#244865", 0.65),
                 borderwidth=1,
-            ),
-            hoverlabel=dict(
-                bgcolor=rgba(PRIMARY, 0.85),
-                bordercolor=rgba(ACCENT_SOFT, 0.35),
                 font=dict(color=DARK_TEXT),
             ),
+            hoverlabel=dict(
+                bgcolor=rgba("#0F1A28", 0.98),
+                bordercolor=rgba("#244865", 0.6),
+                font=dict(color=DARK_TEXT),
+            ),
+            colorway=[
+                get_color("accent"),
+                PRIMARY,
+                get_color("success"),
+                get_color("secondary"),
+                get_color("warning"),
+                get_color("error"),
+            ],
         )
         grid = DARK_GRID
         axisline = DARK_AXIS
-        marker_border = rgba(ACCENT_SOFT, 0.45)
+        marker_border = rgba(ACCENT_SOFT, 0.65)
     else:
         fig.update_layout(
             template="plotly_white",
@@ -104,19 +115,20 @@ def apply_elegant_theme(fig: go.Figure, theme: str = "light") -> go.Figure:
                 color=LIGHT_TEXT,
             ),
             legend=dict(
-                bgcolor=rgba(get_color("surface"), 0.88),
-                bordercolor=rgba(PRIMARY, 0.16),
+                bgcolor=rgba(get_color("surface"), 0.95),
+                bordercolor=rgba(BORDER_STRONG, 0.8),
                 borderwidth=1,
+                font=dict(color=SECONDARY_TEXT),
             ),
             hoverlabel=dict(
                 bgcolor=rgba(get_color("surface"), 0.98),
-                bordercolor=rgba(PRIMARY, 0.16),
-                font=dict(color=LIGHT_TEXT),
+                bordercolor=rgba(BORDER_STRONG, 0.8),
+                font=dict(color=SECONDARY_TEXT),
             ),
         )
         grid = LIGHT_GRID
         axisline = LIGHT_AXIS
-        marker_border = rgba(PRIMARY, 0.24)
+        marker_border = rgba(PRIMARY, 0.4)
     fig.update_xaxes(
         showgrid=True,
         gridcolor=grid,
