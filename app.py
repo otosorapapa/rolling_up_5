@@ -1254,7 +1254,7 @@ body, .stApp, [data-testid="stAppViewContainer"]{
   opacity:1;
   visibility:visible;
 }
-h1,h2,h3,h4{
+h1,h2,h3,h4,h5,h6{
   color:var(--ink);
   font-family:var(--font-heading);
   font-weight:600;
@@ -1265,6 +1265,8 @@ h1{ font-size:1.4rem; }
 h2{ font-size:1.25rem; }
 h3{ font-size:1.12rem; }
 h4{ font-size:1.0rem; }
+h5{ font-size:0.98rem; margin:var(--space-2) 0 var(--space-1); }
+h6{ font-size:0.9rem; margin:var(--space-2) 0 var(--space-1); letter-spacing:0.08em; text-transform:uppercase; }
 p,li,span,div{
   color:var(--ink);
   font-family:var(--font-base);
@@ -1279,10 +1281,70 @@ small, .text-small{
   padding:var(--space-2) var(--space-3) var(--space-4);
   max-width:1320px;
 }
-.element-container{ margin-bottom:var(--space-3); }
+.element-container{ margin-bottom:var(--space-2); }
 [data-testid="stHorizontalBlock"]{ gap:var(--space-2) !important; }
 section[id]{ scroll-margin-top:calc(64px + var(--space-2)); }
 .stack{ display:flex; flex-direction:column; gap:var(--space-2); }
+.controls-scroll{
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+  padding-bottom:2px;
+}
+.controls-scroll::-webkit-scrollbar{
+  height:6px;
+}
+.controls-scroll>*{ min-width:0; }
+.dashboard-chart-card{
+  position:relative;
+  margin:var(--space-1) 0 var(--space-3);
+  border-radius:18px;
+  border:1px solid var(--border);
+  background:var(--panel);
+  box-shadow:0 12px 26px rgba(var(--primary-rgb,11,31,59),0.12);
+  display:grid;
+  grid-template-rows:auto 1fr auto;
+  row-gap:var(--space-2);
+}
+.dashboard-chart-card__toolbar{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:var(--space-1);
+  padding:var(--space-1) var(--space-3);
+  background:linear-gradient(180deg, rgba(var(--primary-rgb,11,31,59),0.05), rgba(var(--primary-rgb,11,31,59),0.02));
+  border-bottom:1px solid rgba(var(--primary-rgb,11,31,59),0.12);
+}
+.dashboard-chart-card__toolbar .stRadio,
+.dashboard-chart-card__toolbar .stSelectbox,
+.dashboard-chart-card__toolbar .stSlider,
+.dashboard-chart-card__toolbar .stMultiSelect,
+.dashboard-chart-card__toolbar .stCheckbox{
+  margin-bottom:0 !important;
+}
+.dashboard-chart-card__toolbar [data-testid="column"]{
+  display:flex;
+  align-items:center;
+  gap:var(--space-1);
+}
+.dashboard-chart-card__title{
+  font-size:1.02rem;
+  font-weight:600;
+  color:var(--ink);
+  white-space:nowrap;
+}
+.dashboard-chart-card__body{
+  padding:var(--space-2) var(--space-3);
+}
+.dashboard-chart-card__footer{
+  display:flex;
+  flex-wrap:wrap;
+  gap:var(--space-1);
+  padding:0 var(--space-3) var(--space-2);
+  border-top:1px solid rgba(var(--primary-rgb,11,31,59),0.08);
+}
+.dashboard-chart-card__footer [data-testid="column"]{
+  flex:1 1 220px;
+}
 [data-testid="stMetric"]{
   background:var(--panel);
   border:1px solid var(--border);
@@ -4415,7 +4477,41 @@ def _render_sales_tab(
         f"{top_share:.1f}%" if top_share is not None else "—",
     )
 
-    st.markdown("##### トレンドと可視化切替")
+    st.markdown(
+        '<section class="dashboard-chart-card" id="sales-trend-card">',
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        '<div class="dashboard-chart-card__toolbar controls-scroll">',
+        unsafe_allow_html=True,
+    )
+    toolbar_title_col, toolbar_control_col = st.columns([1.05, 3.0])
+    with toolbar_title_col:
+        st.markdown(
+            "<span class='dashboard-chart-card__title'>トレンドと可視化</span>",
+            unsafe_allow_html=True,
+        )
+    viz_choice = None
+    viz_options: Dict[str, str] = {}
+    if monthly_trend.empty:
+        with toolbar_control_col:
+            st.caption("対象期間にトレンドを描画できるデータがありません。")
+    else:
+        viz_options = {"折れ線": "line", "ヒートマップ": "heatmap", "散布図": "scatter"}
+        with toolbar_control_col:
+            viz_choice = st.radio(
+                "ビジュアライゼーション形式",
+                list(viz_options.keys()),
+                key="sales_chart_variant",
+                horizontal=True,
+                help="グラフタイプを切り替えて異常値や注目SKUを見つけやすくします。",
+                label_visibility="collapsed",
+            )
+    st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown(
+        '<div class="dashboard-chart-card__body">',
+        unsafe_allow_html=True,
+    )
     if monthly_trend.empty:
         render_status_message(
             "empty",
@@ -4424,15 +4520,8 @@ def _render_sales_tab(
             guide="データ取込や期間設定を確認してください。",
         )
     else:
-        viz_options = {"折れ線": "line", "ヒートマップ": "heatmap", "散布図": "scatter"}
-        viz_choice = st.radio(
-            "ビジュアライゼーション形式",
-            list(viz_options.keys()),
-            key="sales_chart_variant",
-            horizontal=True,
-            help="グラフタイプを切り替えて異常値や注目SKUを見つけやすくします。",
-        )
-        choice_key = viz_options[viz_choice]
+        active_label = viz_choice or next(iter(viz_options))
+        choice_key = viz_options[active_label]
         chart_df = monthly_trend.copy()
         chart_df["display_sales"] = chart_df["sales_amount_jpy"] / unit_scale
         chart_df["prev_sales"] = chart_df["display_sales"].shift(12)
@@ -4618,9 +4707,13 @@ def _render_sales_tab(
                 fig, config=PLOTLY_CONFIG, spinner_text=SPINNER_MESSAGE
             )
             if not download_df.empty:
-                trend_cols = st.columns([2, 1])
+                st.markdown(
+                    '<div class="dashboard-chart-card__footer">',
+                    unsafe_allow_html=True,
+                )
+                footer_cols = st.columns([2, 1])
                 csv_bytes = download_df.to_csv(index=False).encode("utf-8-sig")
-                with trend_cols[0]:
+                with footer_cols[0]:
                     st.download_button(
                         "トレンドCSVをダウンロード",
                         data=csv_bytes,
@@ -4628,8 +4721,9 @@ def _render_sales_tab(
                         mime="text/csv",
                         help="選択中のグラフに対応したデータをCSVで保存します。",
                         key=f"sales_trend_csv_{choice_key}",
+                        use_container_width=True,
                     )
-                with trend_cols[1]:
+                with footer_cols[1]:
                     st.button(
                         "SKU詳細ページを開く",
                         on_click=set_active_page,
@@ -4638,7 +4732,9 @@ def _render_sales_tab(
                         help="個別SKUのトレンドをさらに掘り下げます。",
                         key=f"sales_trend_detail_{choice_key}",
                     )
-
+                st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown("</section>", unsafe_allow_html=True)
     snapshot_year = pd.DataFrame()
     if (
         year_df is not None
