@@ -1235,8 +1235,67 @@ textarea,
   background:var(--surface-2);
   border:1px solid color-mix(in srgb, var(--surface-0), transparent 85%);
   border-radius:12px;
-  padding:0.55rem 0.75rem;
+  box-sizing:border-box;
+  line-height:1.5;
+  font-size:0.95rem;
+  padding:0.65rem 0.9rem;
+  min-height:2.75rem;
   caret-color:var(--text-pri);
+}
+textarea{
+  height:auto !important;
+  min-height:5.25rem;
+  resize:vertical;
+  padding:0.75rem 0.9rem;
+}
+select,
+.stSelectbox>div>div>input,
+[data-baseweb="select"] [role="combobox"]{
+  appearance:none;
+  padding-right:2.85rem;
+}
+select{
+  background-image:linear-gradient(45deg, transparent 50%, var(--text-muted) 50%), linear-gradient(135deg, var(--text-muted) 50%, transparent 50%);
+  background-position:calc(100% - 1.05rem) 52%, calc(100% - 0.65rem) 52%;
+  background-size:0.5rem 0.5rem, 0.5rem 0.5rem;
+  background-repeat:no-repeat;
+}
+.stSelectbox>div>div{
+  position:relative;
+}
+.stSelectbox>div>div::after{
+  content:"";
+  position:absolute;
+  inset-block:0;
+  right:0.9rem;
+  width:0.55rem;
+  height:0.55rem;
+  border-right:2px solid var(--text-muted);
+  border-bottom:2px solid var(--text-muted);
+  transform:rotate(45deg);
+  margin:auto 0;
+  pointer-events:none;
+  z-index:1;
+}
+[data-baseweb="input"] svg,
+[data-baseweb="select"] svg{
+  pointer-events:none;
+  z-index:1;
+}
+[data-baseweb="input"] [aria-hidden="true"],
+[data-baseweb="select"] [aria-hidden="true"]{
+  pointer-events:none;
+  z-index:1;
+}
+@supports selector(div:has(*)){
+  [data-baseweb="input"]:has(svg:first-child) input,
+  [data-baseweb="input"]:has([data-testid*="start"]:first-child) input{
+    padding-left:2.25rem;
+  }
+  [data-baseweb="input"]:has(svg:last-child) input,
+  [data-baseweb="input"]:has(button:last-child) input{
+    padding-right:2.25rem;
+  }
 }
 input::placeholder,
 textarea::placeholder,
@@ -1414,6 +1473,9 @@ p,li,span,div{
   font-family:var(--font-base);
   font-size:1rem;
   line-height:1.48;
+  word-break:break-word;
+  overflow-wrap:anywhere;
+  white-space:normal;
 }
 small, .text-small{
   font-size:0.82rem;
